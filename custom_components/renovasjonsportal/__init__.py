@@ -11,6 +11,7 @@ from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.typing import ConfigType
@@ -20,6 +21,8 @@ from .const import DOMAIN, INTEGRATION_VERSION, PLATFORMS, URL_BASE
 from .coordinator import RenovationPortalCoordinator
 
 _LOGGER = logging.getLogger(__name__)
+
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 _WWW_PATH = Path(__file__).parent / "www"
 _CARD_PATH = f"{URL_BASE}/renovasjonsportal-card.js"

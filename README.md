@@ -33,7 +33,7 @@ Data oppdateres automatisk hver 12. time.
 ## Installasjon med HACS
 
 Før integrasjonen kan installeres gjennom HACS må dette innholdet ligge i et
-offentlig GitHub-repository, for eksempel `sofagris/ha-renovasjonsportal`.
+offentlig GitHub-repository, for eksempel `sofagris/remidt-renovasjon`.
 
 1. Åpne HACS.
 2. Velg **Custom repositories**.
@@ -82,7 +82,7 @@ Bruker du Lovelace i YAML-modus, legg til manuelt:
 
 ```yaml
 resources:
-  - url: /renovasjonsportal/renovasjonsportal-card.js?v=0.2.2
+  - url: /renovasjonsportal/renovasjonsportal-card.js?v=0.2.3
     type: module
 ```
 

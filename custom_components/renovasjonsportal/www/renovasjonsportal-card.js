@@ -311,7 +311,7 @@ function registerCard() {
       name: "Renovasjonsportal",
       description: "Viser neste søppeltømming med avfallsikoner.",
       preview: true,
-      documentationURL: "https://github.com/sofagris/ha-renovasjonsportal",
+      documentationURL: "https://github.com/sofagris/remidt-renovasjon",
     });
   }
 }
