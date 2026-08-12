@@ -82,9 +82,20 @@ Bruker du Lovelace i YAML-modus, legg til manuelt:
 
 ```yaml
 resources:
-  - url: /renovasjonsportal/renovasjonsportal-card.js?v=0.2.1
+  - url: /renovasjonsportal/renovasjonsportal-card.js?v=0.2.2
     type: module
 ```
+
+Du kan også legge til kortet manuelt via YAML-editoren:
+
+```yaml
+type: custom:renovasjonsportal-card
+entity: sensor.storgata_1_neste_tomming
+```
+
+Hvis kortvelgeren feiler (f.eks. sammen med `browser_mod`), bruk YAML-metoden
+over. Sjekk også at resursen finnes under
+**Innstillinger → Dashboards → Ressurser**.
 
 ## Eksempel på påminnelse kvelden før
 

@@ -1,3 +1,4 @@
+const CARD_TAG = "renovasjonsportal-card";
 const ICON_BASE = "/renovasjonsportal/icons";
 
 const FRACTION_ICONS = {
@@ -19,7 +20,16 @@ function normalizeFraction(name) {
 function iconForFraction(name) {
   const key = normalizeFraction(name);
   const file = FRACTION_ICONS[key];
-  return file ? `${ICON_BASE}/${file}` : null;
+  return file ? `${ICON_BASE}/${file}` : `${ICON_BASE}/restavfall.png`;
+}
+
+function slugForFraction(name) {
+  return normalizeFraction(name)
+    .replace(/æ/g, "ae")
+    .replace(/ø/g, "o")
+    .replace(/å/g, "a")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 function formatRelativeDays(days) {
@@ -47,7 +57,40 @@ function formatCollectionDate(value) {
   });
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function findSuggestedEntity(hass, entities) {
+  const candidates = entities || Object.keys(hass?.states || {});
+  const byAttribute = candidates.find((entityId) => {
+    const state = hass?.states?.[entityId];
+    return Array.isArray(state?.attributes?.avfallstyper);
+  });
+  if (byAttribute) {
+    return byAttribute;
+  }
+  return (
+    candidates.find(
+      (entityId) =>
+        entityId.includes("neste_tomming") ||
+        entityId.includes("next_collection") ||
+        entityId.includes("renovasjonsportal")
+    ) || ""
+  );
+}
+
 class RenovasjonsportalCard extends HTMLElement {
+  constructor() {
+    super();
+    this._config = {};
+    this._hass = undefined;
+  }
+
   static getConfigForm() {
     return {
       schema: [
@@ -68,15 +111,8 @@ class RenovasjonsportalCard extends HTMLElement {
   }
 
   static getStubConfig(hass, entities) {
-    const match = (entities || []).find((entityId) => {
-      const state = hass?.states?.[entityId];
-      return (
-        state &&
-        Object.prototype.hasOwnProperty.call(state.attributes || {}, "avfallstyper")
-      );
-    });
     return {
-      entity: match || "",
+      entity: findSuggestedEntity(hass, entities),
       show_name: true,
     };
   }
@@ -86,8 +122,8 @@ class RenovasjonsportalCard extends HTMLElement {
   }
 
   setConfig(config) {
-    if (!config || !config.entity) {
-      throw new Error("Du må velge en entity for Renovasjonsportal-kortet.");
+    if (!config || typeof config !== "object") {
+      throw new Error("Ugyldig konfigurasjon for Renovasjonsportal-kortet.");
     }
     this._config = {
       show_name: true,
@@ -105,89 +141,105 @@ class RenovasjonsportalCard extends HTMLElement {
     return RenovasjonsportalCard.getCardSize();
   }
 
-  _render() {
-    if (!this._config) {
+  connectedCallback() {
+    this._render();
+  }
+
+  _ensureDom() {
+    if (this._root) {
       return;
     }
 
-    if (!this._card) {
-      this.innerHTML = `
-        <ha-card>
-          <div class="rp-content"></div>
-        </ha-card>
-        <style>
-          :host {
-            display: block;
-          }
-          ha-card {
-            overflow: hidden;
-          }
-          .rp-content {
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-          }
-          .rp-header {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-          }
-          .rp-title {
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: var(--secondary-text-color);
-            line-height: 1.3;
-          }
-          .rp-relative {
-            font-size: 1.55rem;
-            font-weight: 650;
-            line-height: 1.2;
-            color: var(--primary-text-color);
-          }
-          .rp-date {
-            font-size: 0.95rem;
-            color: var(--secondary-text-color);
-            text-transform: capitalize;
-          }
-          .rp-fractions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-          }
-          .rp-fraction {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            min-width: 72px;
-            max-width: 96px;
-            flex: 1 1 72px;
-          }
-          .rp-fraction img {
-            width: 56px;
-            height: 56px;
-            object-fit: contain;
-            display: block;
-          }
-          .rp-fraction-label {
-            font-size: 0.75rem;
-            line-height: 1.25;
-            text-align: center;
-            color: var(--primary-text-color);
-            word-break: break-word;
-          }
-          .rp-warning {
-            color: var(--warning-color, var(--error-color));
-            font-size: 0.95rem;
-          }
-        </style>
-      `;
-      this._card = this.querySelector("ha-card");
-      this._root = this.querySelector(".rp-content");
+    this.innerHTML = `
+      <ha-card>
+        <div class="rp-content"></div>
+      </ha-card>
+      <style>
+        renovasjonsportal-card {
+          display: block;
+        }
+        renovasjonsportal-card ha-card {
+          overflow: hidden;
+        }
+        renovasjonsportal-card .rp-content {
+          padding: 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+        }
+        renovasjonsportal-card .rp-header {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        renovasjonsportal-card .rp-title {
+          font-size: 0.95rem;
+          font-weight: 500;
+          color: var(--secondary-text-color);
+          line-height: 1.3;
+        }
+        renovasjonsportal-card .rp-relative {
+          font-size: 1.55rem;
+          font-weight: 650;
+          line-height: 1.2;
+          color: var(--primary-text-color);
+        }
+        renovasjonsportal-card .rp-date {
+          font-size: 0.95rem;
+          color: var(--secondary-text-color);
+          text-transform: capitalize;
+        }
+        renovasjonsportal-card .rp-fractions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+        renovasjonsportal-card .rp-fraction {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
+          min-width: 72px;
+          max-width: 96px;
+          flex: 1 1 72px;
+        }
+        renovasjonsportal-card .rp-fraction img {
+          width: 56px;
+          height: 56px;
+          object-fit: contain;
+          display: block;
+        }
+        renovasjonsportal-card .rp-fraction-label {
+          font-size: 0.75rem;
+          line-height: 1.25;
+          text-align: center;
+          color: var(--primary-text-color);
+          word-break: break-word;
+        }
+        renovasjonsportal-card .rp-warning {
+          color: var(--secondary-text-color);
+          font-size: 0.95rem;
+        }
+      </style>
+    `;
+    this._root = this.querySelector(".rp-content");
+  }
+
+  _render() {
+    this._ensureDom();
+    if (!this._root) {
+      return;
     }
 
     const entityId = this._config.entity;
+    if (!entityId) {
+      this._root.innerHTML = `
+        <div class="rp-title">Renovasjonsportal</div>
+        <div class="rp-warning">Velg sensoren for neste tømming.</div>
+      `;
+      return;
+    }
+
     const stateObj = this._hass?.states?.[entityId];
     const title =
       this._config.name ||
@@ -196,14 +248,15 @@ class RenovasjonsportalCard extends HTMLElement {
 
     if (!stateObj) {
       this._root.innerHTML = `
-        <div class="rp-warning">Finner ikke entity: ${this._escape(entityId)}</div>
+        <div class="rp-title">${escapeHtml(title)}</div>
+        <div class="rp-warning">Finner ikke entity: ${escapeHtml(entityId)}</div>
       `;
       return;
     }
 
     if (stateObj.state === "unavailable" || stateObj.state === "unknown") {
       this._root.innerHTML = `
-        ${this._config.show_name !== false ? `<div class="rp-title">${this._escape(title)}</div>` : ""}
+        ${this._config.show_name !== false ? `<div class="rp-title">${escapeHtml(title)}</div>` : ""}
         <div class="rp-warning">Ingen tømmedata tilgjengelig</div>
       `;
       return;
@@ -220,14 +273,13 @@ class RenovasjonsportalCard extends HTMLElement {
       fractions.length > 0
         ? fractions
             .map((fraction) => {
-              const icon = iconForFraction(fraction);
-              const label = this._escape(fraction);
-              const image = icon
-                ? `<img src="${icon}" alt="${label}" loading="lazy" />`
-                : `<img src="${ICON_BASE}/restavfall.png" alt="${label}" loading="lazy" />`;
+              const mapped = iconForFraction(fraction);
+              const fallback = `${ICON_BASE}/${slugForFraction(fraction)}.png`;
+              const src = mapped || fallback;
+              const label = escapeHtml(fraction);
               return `
                 <div class="rp-fraction">
-                  ${image}
+                  <img src="${src}" alt="${label}" loading="lazy" />
                   <span class="rp-fraction-label">${label}</span>
                 </div>
               `;
@@ -237,36 +289,31 @@ class RenovasjonsportalCard extends HTMLElement {
 
     this._root.innerHTML = `
       <div class="rp-header">
-        ${this._config.show_name !== false ? `<div class="rp-title">${this._escape(title)}</div>` : ""}
-        <div class="rp-relative">${this._escape(relative)}</div>
-        ${dateLabel ? `<div class="rp-date">${this._escape(dateLabel)}</div>` : ""}
+        ${this._config.show_name !== false ? `<div class="rp-title">${escapeHtml(title)}</div>` : ""}
+        <div class="rp-relative">${escapeHtml(relative)}</div>
+        ${dateLabel ? `<div class="rp-date">${escapeHtml(dateLabel)}</div>` : ""}
       </div>
       <div class="rp-fractions">${fractionHtml}</div>
     `;
   }
-
-  _escape(value) {
-    return String(value)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;");
-  }
-}
-
-if (!customElements.get("renovasjonsportal-card")) {
-  customElements.define("renovasjonsportal-card", RenovasjonsportalCard);
 }
 
 window.customCards = window.customCards || [];
-if (
-  !window.customCards.some((card) => card.type === "renovasjonsportal-card")
-) {
-  window.customCards.push({
-    type: "renovasjonsportal-card",
-    name: "Renovasjonsportal",
-    description: "Viser neste søppeltømming med avfallsikoner.",
-    preview: true,
-    documentationURL: "https://github.com/sofagris/ha-renovasjonsportal",
-  });
+
+function registerCard() {
+  if (!window.customElements.get(CARD_TAG)) {
+    window.customElements.define(CARD_TAG, RenovasjonsportalCard);
+  }
+
+  if (!window.customCards.some((card) => card.type === CARD_TAG)) {
+    window.customCards.push({
+      type: CARD_TAG,
+      name: "Renovasjonsportal",
+      description: "Viser neste søppeltømming med avfallsikoner.",
+      preview: true,
+      documentationURL: "https://github.com/sofagris/ha-renovasjonsportal",
+    });
+  }
 }
+
+registerCard();
