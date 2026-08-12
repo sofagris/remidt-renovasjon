@@ -254,13 +254,19 @@ class RenovasjonsportalCard extends HTMLElement {
   }
 }
 
-customElements.define("renovasjonsportal-card", RenovasjonsportalCard);
+if (!customElements.get("renovasjonsportal-card")) {
+  customElements.define("renovasjonsportal-card", RenovasjonsportalCard);
+}
 
 window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "renovasjonsportal-card",
-  name: "Renovasjonsportal",
-  description: "Viser neste søppeltømming med avfallsikoner.",
-  preview: true,
-  documentationURL: "https://github.com/sofagris/ha-renovasjonsportal",
-});
+if (
+  !window.customCards.some((card) => card.type === "renovasjonsportal-card")
+) {
+  window.customCards.push({
+    type: "renovasjonsportal-card",
+    name: "Renovasjonsportal",
+    description: "Viser neste søppeltømming med avfallsikoner.",
+    preview: true,
+    documentationURL: "https://github.com/sofagris/ha-renovasjonsportal",
+  });
+}

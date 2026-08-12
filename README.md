@@ -73,8 +73,18 @@ Valgfrie felter:
 
 Bytt entity-id dersom Home Assistant oppretter et annet navn.
 
-Hvis kortet ikke dukker opp etter oppdatering, start Home Assistant på nytt og
-hard-refresh nettleseren.
+Etter oppdatering: last ned ny versjon, **start Home Assistant på nytt**, og
+hard-refresh nettleseren. Integrasjonen registrerer da automatisk resursen
+`/renovasjonsportal/renovasjonsportal-card.js` under
+**Innstillinger → Dashboards → Ressurser**.
+
+Bruker du Lovelace i YAML-modus, legg til manuelt:
+
+```yaml
+resources:
+  - url: /renovasjonsportal/renovasjonsportal-card.js?v=0.2.1
+    type: module
+```
 
 ## Eksempel på påminnelse kvelden før
 
