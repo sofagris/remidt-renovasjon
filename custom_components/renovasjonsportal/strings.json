@@ -1,0 +1,40 @@
+{
+  "title": "Renovasjonsportal",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Find address",
+        "description": "Enter the street address used by Renovasjonsportal.",
+        "data": {
+          "address": "Address"
+        },
+        "data_description": {
+          "address": "For example: Storgata 1"
+        }
+      },
+      "select_address": {
+        "title": "Select address",
+        "description": "Select the correct address from the search results.",
+        "data": {
+          "address_id": "Address"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to Renovasjonsportal.",
+      "invalid_response": "Renovasjonsportal returned an unexpected response.",
+      "no_addresses": "No matching addresses were found.",
+      "invalid_address": "The selected address is no longer available. Search again."
+    },
+    "abort": {
+      "already_configured": "This address is already configured."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next_collection": {
+        "name": "Next collection"
+      }
+    }
+  }
+}

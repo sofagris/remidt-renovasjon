@@ -1,0 +1,40 @@
+{
+  "title": "Renovasjonsportal",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Finn adresse",
+        "description": "Skriv inn gateadressen som brukes av Renovasjonsportal.",
+        "data": {
+          "address": "Adresse"
+        },
+        "data_description": {
+          "address": "For eksempel: Storgata 1"
+        }
+      },
+      "select_address": {
+        "title": "Velg adresse",
+        "description": "Velg riktig adresse fra søkeresultatene.",
+        "data": {
+          "address_id": "Adresse"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Kunne ikke koble til Renovasjonsportal.",
+      "invalid_response": "Renovasjonsportal returnerte et uventet svar.",
+      "no_addresses": "Fant ingen adresser som samsvarer med søket.",
+      "invalid_address": "Den valgte adressen er ikke lenger tilgjengelig. Søk på nytt."
+    },
+    "abort": {
+      "already_configured": "Denne adressen er allerede konfigurert."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next_collection": {
+        "name": "Neste tømming"
+      }
+    }
+  }
+}
