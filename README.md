@@ -49,19 +49,32 @@ Kopier katalogen `custom_components/renovasjonsportal` til Home Assistant sin
 `config/custom_components/`-katalog og start Home Assistant på nytt. Legg
 deretter til integrasjonen fra **Enheter og tjenester**.
 
-## Eksempel på dashboard
+## Dashboard-kort
 
-Bytt entity-id dersom Home Assistant oppretter et annet navn:
+Integrasjonen leverer et eget Lovelace-kort som viser neste tømming med
+avfallsikonene. Kortet lastes automatisk når integrasjonen er satt opp.
+
+1. Åpne et dashboard og velg **Rediger**.
+2. Velg **Legg til kort** → **Søk etter kort**.
+3. Søk etter **Renovasjonsportal**.
+4. Velg sensoren for **Neste tømming**.
+
+YAML-eksempel:
 
 ```yaml
-type: markdown
-content: >-
-  {% set entity = 'sensor.storgata_1_neste_tomming' %}
-  ## Søppeltømming
-  **{{ state_attr(entity, 'avfallstyper_tekst') }}**
-  tømmes {{ as_timestamp(states(entity)) | timestamp_custom('%d.%m.%Y') }}
-  (om {{ state_attr(entity, 'dager_til') }} dager).
+type: custom:renovasjonsportal-card
+entity: sensor.storgata_1_neste_tomming
 ```
+
+Valgfrie felter:
+
+- `name`: egen tittel (standard er entity-navnet)
+- `show_name`: `false` skjuler tittelen
+
+Bytt entity-id dersom Home Assistant oppretter et annet navn.
+
+Hvis kortet ikke dukker opp etter oppdatering, start Home Assistant på nytt og
+hard-refresh nettleseren.
 
 ## Eksempel på påminnelse kvelden før
 

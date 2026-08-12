@@ -13,7 +13,11 @@ bakgrunn og leveres i 1024 × 1024 og 256 × 256 piksler.
 
 ## Bruk i Home Assistant
 
-Kopier ønsket oppløsning til eksempelvis:
+Dashboard-kortet `custom:renovasjonsportal-card` bruker automatisk 256×256-ikonene
+som følger med integrasjonen under `/renovasjonsportal/icons/`. Du trenger ikke
+kopiere filene manuelt for det kortet.
+
+For egne kort eller markdown kan du kopiere ønsket oppløsning til eksempelvis:
 
 ```text
 /config/www/renovasjonsportal/

@@ -5,9 +5,10 @@
   "config_flow": true,
   "documentation": "https://github.com/sofagris/ha-renovasjonsportal",
   "issue_tracker": "https://github.com/sofagris/ha-renovasjonsportal/issues",
+  "dependencies": ["frontend", "http"],
   "integration_type": "service",
   "iot_class": "cloud_polling",
   "requirements": [],
-  "version": "0.1.0"
+  "version": "0.2.0"
 }
 
